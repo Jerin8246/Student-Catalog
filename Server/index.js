@@ -8,18 +8,37 @@ const pool = require("./db")
 app.use(cors());
 app.use(express.json()); //req.body
 
-//Create a student
+
 // Create a student
 app.post("/student", async (req, res) => {
   try {
-    const { dateOfBirth, firstName, lastName, phoneNumber, address, emergencyContact, email } = req.body;
+    const { studentID, dateOfBirth, firstName, lastName, phoneNumber, address, emergencyContact, email } = req.body;
 
     const newStudent = await pool.query(
-      "INSERT INTO student (dateOfBirth, firstName, lastName, phoneNumber, address, emergencyContact, email) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-      [dateOfBirth, firstName, lastName, phoneNumber, address, emergencyContact, email]
+      "INSERT INTO student (studentID, dateOfBirth, firstName, lastName, phoneNumber, address, emergencyContact, email) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
+      [studentID, dateOfBirth, firstName, lastName, phoneNumber, address, emergencyContact, email]
     );
 
     res.json(newStudent.rows[0]);
+
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Internal Server Error" }); // Send an error response
+  }
+});
+
+
+// Create a student information record
+app.post("/student_information", async (req, res) => {
+  try {
+    const { studentID, major, isEnrolled, gpa, enrollmentYear } = req.body;
+
+    const newStudentInfo = await pool.query(
+      "INSERT INTO student_information (studentID, major, isEnrolled, gpa, enrollmentYear) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [studentID, major, isEnrolled, gpa, enrollmentYear]
+    );
+
+    res.json(newStudentInfo.rows[0]);
 
   } catch (error) {
     console.error(error.message);
@@ -42,8 +61,20 @@ app.get("/student", async (req, res) => {
   }
 });
 
+// get student ifromation
+app.get("/student_information", async (req, res) => {
+  try {
+    const allStudentInformation = await pool.query("SELECT * FROM Student_Information");
+    res.json(allStudentInformation.rows);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
 
 //get a student
+
+
 
 //update a student
 
