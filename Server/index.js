@@ -34,7 +34,8 @@ app.get("/student", async (req, res) => {
 
   try {
     
-   
+   const allStudents = await pool.query("SELECT * FROM student")
+   res.json(allStudents.rows);
 
   } catch (error) {
     console.error(error.message)
@@ -53,6 +54,6 @@ app.get("/student", async (req, res) => {
 
 
 
-app.listen(8002, () => {
-    console.log("server has started on port 8002");
+app.listen(8000, () => {
+    console.log("server has started on port 8000");
   });
