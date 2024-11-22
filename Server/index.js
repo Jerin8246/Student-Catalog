@@ -123,7 +123,90 @@ app.get("/student_information/:studentID", async (req, res) => {
 
 
 
-//update a student
+
+// Update a student's Information
+app.put("/student/:studentID", async (req, res) => {
+  try {
+    const { studentID } = req.params; // Extract studentID from URL parameters
+    const {
+      dateOfBirth,
+      firstName,
+      lastName,
+      phoneNumber,
+      address,
+      emergencyContact,
+      email,
+      major,
+      isEnrolled,
+      gpa,
+      enrollmentYear
+    } = req.body; // Extract fields from the request body
+
+    // Validate input: Ensure all required fields are provided
+    if (
+      !dateOfBirth ||
+      !firstName ||
+      !lastName ||
+      !phoneNumber ||
+      !address ||
+      !emergencyContact ||
+      !email ||
+      !major ||
+      isEnrolled === undefined ||
+      !gpa ||
+      !enrollmentYear
+    ) {
+      return res.status(400).json({ error: "All fields are required for updating the student and their information." });
+    }
+
+    // Start a transaction to update both tables
+    await pool.query("BEGIN");
+
+    // Update the Student table
+    const updatedStudent = await pool.query(
+      `UPDATE Student
+       SET dateOfBirth = $1, firstName = $2, lastName = $3, phoneNumber = $4,
+           address = $5, emergencyContact = $6, email = $7
+       WHERE studentID = $8
+       RETURNING *`,
+      [dateOfBirth, firstName, lastName, phoneNumber, address, emergencyContact, email, studentID]
+    );
+
+    if (updatedStudent.rows.length === 0) {
+      await pool.query("ROLLBACK");
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    // Update the Student_Information table
+    const updatedStudentInfo = await pool.query(
+      `UPDATE Student_Information
+       SET major = $1, isEnrolled = $2, gpa = $3, enrollmentYear = $4
+       WHERE studentID = $5
+       RETURNING *`,
+      [major, isEnrolled, gpa, enrollmentYear, studentID]
+    );
+
+    if (updatedStudentInfo.rows.length === 0) {
+      await pool.query("ROLLBACK");
+      return res.status(404).json({ error: "Student information not found" });
+    }
+
+    // Commit the transaction
+    await pool.query("COMMIT");
+
+    // Combine and send the updated data as a response
+    res.json({
+      student: updatedStudent.rows[0],
+      studentInformation: updatedStudentInfo.rows[0]
+    });
+  } catch (error) {
+    // Rollback in case of any error
+    await pool.query("ROLLBACK");
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
 
 
 //delete a student
