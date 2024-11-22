@@ -72,7 +72,28 @@ app.get("/student_information", async (req, res) => {
   }
 });
 
-//get a student
+//get a student by first and last name
+
+app.get("/student/:firstName/:lastName", async (req, res) => {
+  try {
+    const { firstName, lastName } = req.params; // Extract parameters from the URL
+
+    const student = await pool.query(
+      "SELECT * FROM Student WHERE firstName = $1 AND lastName = $2",
+      [firstName, lastName]
+    );
+
+    if (student.rows.length === 0) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    res.json(student.rows[0]); // Return the student record
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
 
 
 
