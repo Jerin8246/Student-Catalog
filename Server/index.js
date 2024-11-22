@@ -94,6 +94,32 @@ app.get("/student/:firstName/:lastName", async (req, res) => {
   }
 });
 
+// get detailed information about a student using their studentID:
+app.get("/student_information/:studentID", async (req, res) => {
+  try {
+    const { studentID } = req.params; // Extract studentID from URL parameters
+
+    const studentInfo = await pool.query(
+      `SELECT s.studentID, dateOfBirth, s.firstName, s.lastName, s.phoneNumber, s.address, s.emergencyContact, s.email, si.major, si.gpa, si.isEnrolled, si.enrollmentYear
+       FROM Student s
+       JOIN Student_Information si
+       ON s.studentID = si.studentID
+       WHERE s.studentID = $1`,
+      [studentID]
+    );
+
+    if (studentInfo.rows.length === 0) {
+      return res.status(404).json({ error: "Student information not found" });
+    }
+
+    res.json(studentInfo.rows[0]); // Return the detailed student information
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
+
 
 
 
