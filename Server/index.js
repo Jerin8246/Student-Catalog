@@ -209,7 +209,51 @@ app.put("/student/:studentID", async (req, res) => {
 
 
 
-//delete a student
+// Delete a student record by studentID
+// Delete a student record by studentID
+app.delete("/student/:studentID", async (req, res) => {
+  try {
+    const { studentID } = req.params; // Extract studentID from URL parameters
+
+    // Begin a transaction to delete both records
+    await pool.query("BEGIN");
+
+    // Delete dependent records in the Student_Information table
+    const deleteStudentInfo = await pool.query(
+      "DELETE FROM Student_Information WHERE studentID = $1 RETURNING *",
+      [studentID]
+    );
+
+    // Delete the main student record in the Student table
+    const deleteStudent = await pool.query(
+      "DELETE FROM Student WHERE studentID = $1 RETURNING *",
+      [studentID]
+    );
+
+    // If the student record is not found
+    if (deleteStudent.rows.length === 0) {
+      await pool.query("ROLLBACK");
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    // Commit the transaction
+    await pool.query("COMMIT");
+
+    // Return success message with deleted records
+    res.json({
+      message: "Student and associated information deleted successfully",
+      deletedStudent: deleteStudent.rows[0],
+      deletedStudentInfo: deleteStudentInfo.rows
+    });
+  } catch (error) {
+    // Rollback the transaction in case of an error
+    await pool.query("ROLLBACK");
+    console.error(error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
 
 
 
