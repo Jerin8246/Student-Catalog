@@ -254,6 +254,56 @@ app.delete("/student/:studentID", async (req, res) => {
 });
 
 
+// Add administrator
+
+app.post("/administrator", async (req, res) => {
+  try {
+    const { adminID, username, email, role, department, privileges, lastLogin, activityLog } = req.body;
+
+    const newAdmin = await pool.query(
+      "INSERT INTO Administrator (adminID, username, email, role, department, privileges, lastLogin, activityLog) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
+      [adminID, username, email, role, department, privileges, lastLogin, activityLog]
+    );
+
+    res.json(newAdmin.rows[0]);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Post administrator log
+
+app.post("/audit-log", async (req, res) => {
+  try {
+    const { logID, adminID, studentID, comments, action, changes, timestamp } = req.body;
+
+    const newLog = await pool.query(
+      "INSERT INTO AuditLog_Logs (logID, adminID, studentID, comments, action, changes, timestamp) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+      [logID, adminID, studentID, comments, action, changes, timestamp]
+    );
+
+    res.json(newLog.rows[0]);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+// Get all logs
+
+app.get("/audit-logs", async (req, res) => {
+  try {
+    const logs = await pool.query("SELECT * FROM AuditLog_Logs");
+
+    res.json(logs.rows);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 
 
 
