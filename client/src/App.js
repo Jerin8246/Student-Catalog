@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import AddStudent from "./components/AddStudent";
-import AllStudents from "./components/AllStudents";
+import AllStudents from "./components/allStudents";
 import GetStudent from "./components/GetStudent";
 import LogsSidebar from "./components/LogsSidebar";
 import LogAdminActivity from "./components/LogAdminActivity";
