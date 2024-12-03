@@ -65,3 +65,74 @@ The **Student Catalog Management System** facilitates the following functionalit
    ```bash
    git clone <repository_url>
    cd <repository_directory>
+
+2. Install dependencies:
+
+    npm install
+
+3. Set up the PostgreSQL database:
+
+    Create a database named studentcat.
+    Import the backup file
+
+    pg_restore -U studentcat -d studentcat studentcat_backup.dump
+
+4. Start the server:
+
+    cd Server
+    nodemon index.js
+
+5. Set up the client:
+    cd client
+    npm install
+    npm start
+
+6. Access the application at:
+    Backend: http://localhost:8000
+    Frontend: http://localhost:3000
+
+
+# API Endpoints
+
+## Student Endpoints
+
+- **Create Student**: `POST /student`
+- **Get All Students**: `GET /student`
+- **Get Student by Name**: `GET /student/:firstName/:lastName`
+- **Get Detailed Student Info**: `GET /student_information/:studentID`
+- **Update Student**: `PUT /student/:studentID`
+- **Delete Student**: `DELETE /student/:studentID`
+
+---
+
+## Administrator Endpoints
+
+- **Create Administrator**: `POST /administrator`
+
+---
+
+## Audit Log Endpoints
+
+- **Add Log**: `POST /audit-log`
+- **Get All Logs**: `GET /audit-logs`
+
+---
+
+## Client-Side Application
+
+The client-side React application provides an interface to interact with the backend APIs. It includes:
+- Forms for creating and updating records.
+- Tables for viewing data.
+- Controls for managing the database.
+
+---
+
+## Backup and Restore
+
+### To back up the database:
+
+pg_dump -U <your_postgres_user> -Fc studentcat > studentcat_backup.dump
+
+### To restore the database:
+
+pg_restore -U <your_postgres_user> -d studentcat studentcat_backup.dump
