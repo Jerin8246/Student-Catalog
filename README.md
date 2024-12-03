@@ -1,1 +1,1 @@
-# Student-Catalog
+# Student Catalog Management System
