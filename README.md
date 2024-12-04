@@ -135,4 +135,6 @@ pg_dump -U <your_postgres_user> -Fc studentcat > studentcat_backup.dump
 
 ### To restore the database:
 
-pg_restore -U <your_postgres_user> -d studentcat studentcat_backup.dump
+createdb -U <your_postgres_user> studentcat
+
+pg_restore -U <your_postgres_user> -d studentcat -v studentcat_backup.dump
